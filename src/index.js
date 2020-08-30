@@ -1,16 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
-// import App from './App';
 import * as serviceWorker from './serviceWorker';
-import Phonebook from "./Phonebook";
+import Phonebook from "./phonebookFolder/Phonebook";
 
 ReactDOM.render(
-  <React.StrictMode>
-    <Phonebook />
-  </React.StrictMode>,
+    <Phonebook />,
   document.getElementById('root')
 );
+
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.

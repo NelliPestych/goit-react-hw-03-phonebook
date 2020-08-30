@@ -1,22 +1,12 @@
-import React, { Component } from "react";
-import AddNomber from "./addNomber";
-import createNumber from "./createNumber";
-import Contacts from "./Contacts";
-import Filter from "./Filter"
-// import Statistics from "./Statistics";
-// import Notification from "./Notification";
-
-// state = {
-//     contacts: [
-//       {id: 'id-1', name: 'Rosie Simpson', number: '459-12-56'},
-//       {id: 'id-2', name: 'Hermione Kline', number: '443-89-12'},
-//       {id: 'id-3', name: 'Eden Clements', number: '645-17-79'},
-//       {id: 'id-4', name: 'Annie Copeland', number: '227-91-26'},
-//     ],
-//     filter: '',
-//     name: '',
-//     number: ''
-//   }
+import React from "react";
+import AddNomber from "../addnomberFolder/addNomber";
+import createNumber from "../createnomberFolder/createNumber";
+import Contacts from "../contactsFolder/Contacts";
+import Filter from "../filterFolder/Filter";
+import Notification from "../notifyFolder/Notification";
+import { CSSTransition } from "react-transition-group";
+import "./NotifyStyles.css";
+import "./MyStyles.css";
 
 export default class Phonebook extends React.Component {
   state = {
@@ -29,6 +19,7 @@ export default class Phonebook extends React.Component {
     name: "",
     number: "",
     search: [],
+    notify: false,
   };
 
   componentDidMount() {
@@ -40,6 +31,20 @@ export default class Phonebook extends React.Component {
     }
   }
 
+  notifyChange = () => {
+    this.setState({
+      notify: true,
+    });
+  }
+
+  notifyTimeout = () => {
+    setTimeout(() => {
+      this.setState({
+        notify: false,
+      });
+    }, 1500);
+  }
+
   componentDidUpdate(prevProps, prevState) {
     if (prevState.contacts !== this.state.contacts) {
       localStorage.setItem("contacts", JSON.stringify(this.state.contacts));
@@ -49,7 +54,12 @@ export default class Phonebook extends React.Component {
   addContact = () => {
     const phoneNumber = createNumber();
     this.setState((prevState) => {
-      return {
+      const contactNames = prevState.contacts.map(contact => contact.name);
+      if (contactNames.some(theName => theName === prevState.name)) {
+        this.notifyChange();
+        this.notifyTimeout();
+      }
+      else return {
         contacts: [
           { id: phoneNumber, name: this.state.name, number: this.state.number },
           ...prevState.contacts,
@@ -66,47 +76,66 @@ export default class Phonebook extends React.Component {
     });
   };
 
-  inputChange1 = (e) => {
+  inputChangeName = (e) => {
     e.preventDefault();
     this.setState({ name: e.target.value });
   };
 
-  inputChange2 = (e) => {
+  inputChangeNumber = (e) => {
     e.preventDefault();
     this.setState({ number: e.target.value });
   };
 
-  inputChange3 = (e) => {
+  inputChangeContact = (e) => {
     e.preventDefault();
-    const findNumber = this.state.contacts.filter((contact) => contact.name === e.target.value);
+    const findNumber = this.state.contacts.filter(
+      (contact) => contact.name === e.target.value
+    );
     this.setState({ search: [...findNumber] });
   };
-  //   handleChange3 = (e) => {
-  //     this.setState({ bad: this.state.bad + 1 });
-  //   };
 
   render() {
     const { contacts } = this.state;
     return (
       <div>
-        <h1>Phonebook</h1>
+        <CSSTransition
+          in={this.state.notify === true}
+          appear={true}
+          classNames="notify"
+          timeout={5000}
+          unmountOnExit
+        >
+          <Notification className="notify"/>
+        </CSSTransition>
+        <CSSTransition
+          in={true}
+          appear={true}
+          classNames="my"
+          timeout={500}
+          unmountOnExit
+        >
+          <h1>Phonebook</h1>
+        </CSSTransition>
+        <p>Name</p>
         <input
           type="text"
           value={this.state.name}
-          onChange={this.inputChange1}
+          onChange={this.inputChangeName}
         />
+      <p>Number</p>
         <input
           type="text"
           value={this.state.number}
-          onChange={this.inputChange2}
+          onChange={this.inputChangeNumber}
         />
-        <AddNomber nomberEditor={this.addContact} />
-
-        <h2>Contacts</h2>
+        {this.state.name && this.state.number && (
+          <AddNomber nomberEditor={this.addContact} />
+        )}
+        <p>Search</p>
         <Filter searchAll={this.state.search} />
-        <input type="text" onChange={this.inputChange3} />
+        <input type="text" onChange={this.inputChangeContact} />
+        <p>Contacts</p>
         <Contacts contactsAll={contacts} onRemoveTask={this.removeContact} />
-        <p></p>
       </div>
     );
   }

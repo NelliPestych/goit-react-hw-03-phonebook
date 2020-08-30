@@ -1,4 +1,5 @@
-import React, { Component } from "react";
+import React from "react";
+import PropTypes from "prop-types";
 
 const Filter = ({ searchAll }) => (
   <ul>
@@ -10,4 +11,7 @@ const Filter = ({ searchAll }) => (
   </ul>
 );
 
+Filter.propTypes = {
+  searchAll: PropTypes.array.isRequired,
+};
 export default Filter;
